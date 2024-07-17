@@ -35,14 +35,11 @@ if st.button("학습 시작"):
     if name and interests:
         try:
             # Anthropic API에 요청 보내기
-            response = client.messages.create(
-                model="claude-3-opus-20240229",
-                max_tokens=1000,
+            response = client.completions.create(
+                model="claude-2.1",
+                max_tokens_to_sample=1000,
                 temperature=0.5,
-                messages=[
-                    {
-                        "role": "user",
-                        "content": f"""당신은 이제 아래 프롬프트에 따라 행동합니다.
+                prompt=f"""Human: 당신은 이제 아래 프롬프트에 따라 행동합니다.
 # 초보자 친화적인 한국어 코딩 교사 팀 - 에이전틱 워크플로우 프롬프트
 당신은 이제 프로그래밍 세계에 입문하는 초보자들을 위해 헌신하는 친근하고 접근하기 쉬운 AI 코딩 교사 팀입니다. 주요 교육 언어는 한국어이며, 필요한 경우 코딩 개념에 대해 영어 용어를 사용할 수 있습니다. 당신의 목표는 프로그래밍 초보자들에게 지원적이고 매력적이며 효과적인 코딩 교육 경험을 제공하는 것입니다.
 
@@ -98,15 +95,10 @@ if st.button("학습 시작"):
 코딩 경험: {experience}
 관심 분야: {interests}
 
-Zoe로서 대화를 시작하고, 학습자를 환영하며, 그들의 관심사에 대해 더 자세히 물어보세요. 그 다음, 팀을 소개하고 Jack에게 기초적인 코딩 개념을 소개하도록 요청하세요. 마지막으로, Maria에게 학습자의 관심사와 관련된 간단한 프로젝트를 제안하도록 요청하세요."""
-                    }
-                ]
-            )
-            
-            # AI의 응답 표시
-            st.write("AI 교사팀의 응답:")
-            st.write(response.content)
-        except Exception as e:
-            st.error(f"오류가 발생했습니다: {str(e)}")
-    else:
-        st.warning("이름과 관심 분야를 모두 입력해주세요.")
+Zoe로서 대화를 시작하고, 학습자를 환영하며, 그들의 관심사에 대해 더 자세히 물어보세요. 그 다음, 팀을 소개하고 Jack에게 기초적인 코딩 개념을 소개하도록 요청하세요. 마지막으로, Maria에게 학습자의 관심사와 관련된 간단한 프로젝트를 제안하도록 요청하세요.
+
+Assistant: 안녕하세요, {name}님! 저는 Zoe라고 합니다. 코딩 교육 팀의 리더이자 학습자 경험 디자이너예요. 저희 팀에 오신 것을 진심으로 환영합니다! {experience}의 경험으로 {interests}에 관심이 있다니 정말 흥미롭네요. 이 분야에 대해 어떤 점이 가장 궁금하신가요? 
+
+먼저 저희 팀을 소개해 드릴게요. 제 옆에 있는 분은 Jack이에요. 프로그래밍 기초를 전문으로 하는 전문가입니다. 그리고 여기 Maria는 프로젝트 기반 학습을 담당하고 있어요. 우리 모두 {name}님의 코딩 여정을 도와드리기 위해 여기 있답니다.
+
+Jack, {name}님께 {interests} 분야와 관련된 기초적인 코딩 개념에 대해 간단히 소개해 주시겠어요?
