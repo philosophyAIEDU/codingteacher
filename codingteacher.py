@@ -4,13 +4,28 @@ import anthropic
 # Streamlit 앱 제목 설정
 st.title("코딩 교사 AI - Anthropic API 활용")
 
-# Streamlit Secrets에서 API 키 가져오기
-api_key = st.secrets["ANTHROPIC_API_KEY"]
+# 세션 상태 초기화
+if 'api_key' not in st.session_state:
+    st.session_state.api_key = ""
+
+# API 키 입력 섹션
+st.header("API 키 설정")
+api_key_input = st.text_input("Anthropic API 키를 입력하세요:", type="password", value=st.session_state.api_key)
+
+if st.button("API 키 저장"):
+    st.session_state.api_key = api_key_input
+    st.success("API 키가 저장되었습니다!")
+
+# API 키 확인
+if not st.session_state.api_key:
+    st.warning("Anthropic API 키를 입력해주세요.")
+    st.stop()
 
 # Anthropic 클라이언트 초기화
-client = anthropic.Anthropic(api_key=api_key)
+client = anthropic.Anthropic(api_key=st.session_state.api_key)
 
-# 사용자 입력 필드
+# 코드 스니펫 입력
+st.header("코드 분석")
 code_snippet = st.text_area("설명할 코드 스니펫을 입력하세요:", height=200)
 programming_language = st.text_input("프로그래밍 언어를 입력하세요:")
 teaching_style = st.selectbox("교육 스타일을 선택하세요:", ["친근한", "전문적인", "유머러스한"])
