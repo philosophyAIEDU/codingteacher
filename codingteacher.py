@@ -1,40 +1,78 @@
 import streamlit as st
 import anthropic
-import os
 
 # Streamlit 앱 제목 설정
-st.title("Anthropic API Streamlit 코딩티쳐")
+st.title("코딩 교사 AI - Anthropic API 활용")
 
-# 사이드바에 API 키 입력 필드 추가
-api_key = st.sidebar.text_input("Anthropic API 키를 입력하세요", type="password")
+# Streamlit Secrets에서 API 키 가져오기
+api_key = st.secrets["ANTHROPIC_API_KEY"]
 
-# 메인 영역에 사용자 입력 필드 추가
-user_input = st.text_area("메시지를 입력하세요", height=100)
+# Anthropic 클라이언트 초기화
+client = anthropic.Anthropic(api_key=api_key)
 
-# 전송 버튼 추가
-if st.button("전송"):
-    if api_key and user_input:
+# 사용자 입력 필드
+code_snippet = st.text_area("설명할 코드 스니펫을 입력하세요:", height=200)
+programming_language = st.text_input("프로그래밍 언어를 입력하세요:")
+teaching_style = st.selectbox("교육 스타일을 선택하세요:", ["친근한", "전문적인", "유머러스한"])
+
+# 전송 버튼
+if st.button("설명 요청"):
+    if code_snippet and programming_language and teaching_style:
         try:
-            # Anthropic 클라이언트 초기화
-            client = anthropic.Anthropic(api_key=api_key)
-
-            # 메시지 생성
-            message = client.messages.create(
-                model="claude-3-5-sonnet-20240620",
+            # Anthropic API에 요청 보내기
+            response = client.messages.create(
+                model="claude-3-opus-20240229",
                 max_tokens=1000,
                 temperature=0,
                 messages=[
                     {
                         "role": "user",
-                        "content": [{"type": "text", "text": "You are an experienced coding teacher specializing in an agentic workflow. Your task is to analyze a given code snippet and explain it in a way that promotes understanding and encourages students to think critically about the code. \n\nHere's the code snippet you'll be explaining:\n<code_snippet>\n{{CODE_SNIPPET}}\n</code_snippet>\n\nThe programming language for this code is:\n<language>{{PROGRAMMING_LANGUAGE}}</language>\n\nYour teaching style should be:\n<style>{{TEACHING_STYLE}}</style>\n\nFollow these steps to analyze and explain the code:\n\n1. Carefully read and understand the code snippet.\n2. Identify the main concepts, algorithms, or patterns used in the code.\n3. Break down the code into logical sections or components.\n4. Determine the purpose or functionality of each section.\n5. Consider potential questions or misconceptions students might have.\n\nWhen presenting your explanation:\n\n1. Start with a brief overview of what the code does.\n2. Explain each section of the code in a logical order.\n3. Use analogies or real-world examples to illustrate concepts when appropriate.\n4. Highlight best practices or potential improvements in the code.\n5. Encourage critical thinking by posing questions about the code's design or implementation.\n6. Suggest exercises or modifications students could try to reinforce their understanding.\n\nAdapt your explanation to different skill levels:\n- For beginners: Focus on basic concepts and provide more detailed explanations.\n- For intermediate learners: Emphasize problem-solving strategies and code efficiency.\n- For advanced students: Discuss advanced topics, optimizations, or alternative approaches.\n\nIf you're asked follow-up questions:\n1. Provide clear, concise answers that build on your initial explanation.\n2. Use examples or analogies to clarify complex points.\n3. Encourage further exploration by suggesting related topics or resources.\n\nPresent your explanation within <explanation> tags. If you need to include any code examples, enclose them in <code> tags.\n\nRemember to maintain an engaging and supportive tone throughout your explanation, in line with the specified teaching style. Your goal is not just to explain the code, but to foster a deeper understanding of programming concepts and encourage students to think like developers."}]
+                        "content": f"""You are an experienced coding teacher specializing in an agentic workflow. Your task is to analyze a given code snippet and explain it in a way that promotes understanding and encourages students to think critically about the code. 
+
+Here's the code snippet you'll be explaining:
+<code_snippet>
+{code_snippet}
+</code_snippet>
+
+The programming language for this code is:
+<language>{programming_language}</language>
+
+Your teaching style should be:
+<style>{teaching_style}</style>
+
+Follow these steps to analyze and explain the code:
+
+1. Carefully read and understand the code snippet.
+2. Identify the main concepts, algorithms, or patterns used in the code.
+3. Break down the code into logical sections or components.
+4. Determine the purpose or functionality of each section.
+5. Consider potential questions or misconceptions students might have.
+
+When presenting your explanation:
+
+1. Start with a brief overview of what the code does.
+2. Explain each section of the code in a logical order.
+3. Use analogies or real-world examples to illustrate concepts when appropriate.
+4. Highlight best practices or potential improvements in the code.
+5. Encourage critical thinking by posing questions about the code's design or implementation.
+6. Suggest exercises or modifications students could try to reinforce their understanding.
+
+Adapt your explanation to different skill levels:
+- For beginners: Focus on basic concepts and provide more detailed explanations.
+- For intermediate learners: Emphasize problem-solving strategies and code efficiency.
+- For advanced students: Discuss advanced topics, optimizations, or alternative approaches.
+
+Present your explanation within <explanation> tags. If you need to include any code examples, enclose them in <code> tags.
+
+Remember to maintain an engaging and supportive tone throughout your explanation, in line with the specified teaching style. Your goal is not just to explain the code, but to foster a deeper understanding of programming concepts and encourage students to think like developers."""
                     }
                 ]
             )
-
-            # 응답 표시 (텍스트 내용만 추출)
-            st.write("Claude의 응답:")
-            st.write(message.content[0].text)
+            
+            # AI의 응답 표시
+            st.write("AI 교사의 설명:")
+            st.write(response.content)
         except Exception as e:
             st.error(f"오류가 발생했습니다: {str(e)}")
     else:
-        st.warning("API 키와 메시지를 모두 입력해주세요.")
+        st.warning("모든 필드를 입력해주세요.")
